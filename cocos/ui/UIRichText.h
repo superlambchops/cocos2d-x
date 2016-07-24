@@ -361,6 +361,11 @@ public:
      * @param index A integer index value.
      */
     void removeElement(int index);
+
+	/**
+	 * @brief remove all richElements
+	 */
+	void removeAllElements();
     
     /**
      * @brief Remove specific RichElement.
@@ -385,6 +390,11 @@ public:
     //override functions.
     virtual void ignoreContentAdaptWithSize(bool ignore) override;
     virtual std::string getDescription() const override;
+
+	/** @brief sets whether height will change automatically
+	 */
+	void ignoreHeightAdaptWithSize(bool ignore);
+	bool isIgnoreHeightAdaptWithSize();
 
     /** @brief sets the wrapping mode: WRAP_PER_CHAR or WRAP_PER_WORD
      */
@@ -412,6 +422,7 @@ protected:
     int findSplitPositionForChar(cocos2d::Label* label, const std::string& text);
 
     bool _formatTextDirty;
+	bool _ignoreHeight;
     Vector<RichElement*> _richElements;
     std::vector<Vector<Node*>*> _elementRenders;
     float _leftSpaceWidth;
