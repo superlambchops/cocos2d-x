@@ -113,11 +113,17 @@ void ListView::updateInnerContainerSize()
         case Direction::VERTICAL:
         {
             size_t length = _items.size();
-            float totalHeight = (length - 1) * _itemsMargin;
-            for (auto& item : _items)
-            {
-                totalHeight += item->getContentSize().height;
-            }
+			float totalHeight = (length + 1) * _itemsMargin;//This was added because I wanted a margin at top and bottom
+			if (this->getLayoutType() == Layout::Type::RELATIVE) {
+				totalHeight = _relativeHeight;
+				CCLOG("Updated Inner Container as Relative for: %s", getName().data());
+			}
+			else {
+	            for (auto& item : _items)
+	            {
+	                totalHeight += item->getContentSize().height;
+	            }
+			}
             float finalWidth = _contentSize.width;
             float finalHeight = totalHeight;
             setInnerContainerSize(Size(finalWidth, finalHeight));
@@ -159,16 +165,18 @@ void ListView::remedyVerticalLayoutParameter(LinearLayoutParameter* layoutParame
         default:
             break;
     }
-    
-    if (0 == itemIndex)
-    {
-        layoutParameter->setMargin(Margin::ZERO);
-    }
-    else
-    {
+		if (getLayoutType() != Layout::Type::RELATIVE) {
+			//Why wouldn't I want the margin at the top
+			//if (0 == itemIndex)
+			//{
+			//	layoutParameter->setMargin(Margin::ZERO);
+			//}
+			//else
+			{
         layoutParameter->setMargin(Margin(0.0f, _itemsMargin, 0.0f, 0.0f));
     }
 }
+	}
     
 void ListView::remedyHorizontalLayoutParameter(LinearLayoutParameter* layoutParameter, ssize_t itemIndex)
 {
@@ -188,6 +196,7 @@ void ListView::remedyHorizontalLayoutParameter(LinearLayoutParameter* layoutPara
         default:
             break;
     }
+		if (getLayoutType() != Layout::Type::RELATIVE) {
     if (0 == itemIndex)
     {
         layoutParameter->setMargin(Margin::ZERO);
@@ -197,6 +206,7 @@ void ListView::remedyHorizontalLayoutParameter(LinearLayoutParameter* layoutPara
         layoutParameter->setMargin(Margin(_itemsMargin, 0.0f, 0.0f, 0.0f));
     }
 }
+	}
 
 void ListView::remedyLayoutParameter(Widget *item)
 {
@@ -436,6 +446,14 @@ void ListView::setItemsMargin(float margin)
     requestDoLayout();
 }
     
+	void ListView::setRelativeHeight(float height) {
+		if (_relativeHeight == height) {
+			return;
+		}
+		_relativeHeight = height;
+		requestDoLayout();
+	}
+
 float ListView::getItemsMargin()const
 {
     return _itemsMargin;

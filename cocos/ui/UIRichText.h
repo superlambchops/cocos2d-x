@@ -451,6 +451,11 @@ public:
     void removeElement(int index);
     
     /**
+	 * @brief remove all richElements
+	 */
+	void removeAllElements();
+    
+    /**
      * @brief Remove specific RichElement.
      *
      * @param element A RichElement type.
@@ -528,7 +533,12 @@ public:
      * @param tag tag's name
      */
     static void removeTagDescription(const std::string& tag);
-    
+
+    /** @brief sets whether height will change automatically
+	 */
+	void ignoreHeightAdaptWithSize(bool ignore);
+	bool isIgnoreHeightAdaptWithSize();
+
     void openUrl(const std::string& url);
 
     /**
@@ -561,6 +571,7 @@ protected:
     int findSplitPositionForChar(cocos2d::Label* label, const std::string& text);
 
     bool _formatTextDirty;
+	bool _ignoreHeight;
     Vector<RichElement*> _richElements;
     std::vector<Vector<Node*>*> _elementRenders;
     float _leftSpaceWidth;

@@ -235,7 +235,16 @@ public:
      * @param margin A margin in float.
      */
     void setItemsMargin(float margin);
-    
+
+    /**
+    * Set the hight if layout type is relative.
+    * Relative layouts can be top or bottom aligned so it is up to the
+    * user to calculate the required height.
+    *
+    * @param relativeHeight
+    */
+    void setRelativeHeight(float height);
+
     /**
      * @brief Query margin between each item in ListView.
      *
@@ -441,6 +450,7 @@ protected:
     bool _magneticAllowedOutOfBoundary;
     
     float _itemsMargin;
+    float _relativeHeight;
     
     float _scrollTime;
     

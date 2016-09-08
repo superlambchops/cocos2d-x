@@ -877,6 +877,7 @@ const std::string RichText::KEY_ANCHOR_TEXT_GLOW_COLOR("KEY_ANCHOR_TEXT_GLOW_COL
 RichText::RichText()
     : _formatTextDirty(true)
     , _leftSpaceWidth(0.0f)
+	, _ignoreHeight(false)
 {
     _defaults[KEY_VERTICAL_SPACE] = 0.0f;
     _defaults[KEY_WRAP_MODE] = static_cast<int>(WrapMode::WRAP_PER_WORD);
@@ -991,6 +992,17 @@ void RichText::removeElement(RichElement *element)
     _richElements.eraseObject(element);
     _formatTextDirty = true;
 }
+
+	void RichText::removeAllElements() {
+		CCLOG("Removing %i elements from Rich Text", _richElements.size());
+		_richElements.clear();
+		//for (int i = 0; i < _richElements.size(); i++) {
+			//_richElements.erase(i);
+			//CCLOG("Removing %s",((RichElementText*)(_richElements.at(i)))->)
+			//removeElement(i);
+		//}
+		_formatTextDirty = true;
+	}
 
 RichText::WrapMode RichText::getWrapMode() const
 {
@@ -1735,6 +1747,7 @@ void RichText::addNewLine()
     
 void RichText::formarRenderers()
 {
+		float newContentSizeHeight = 0.0f;
     if (_ignoreSize)
     {
         float newContentSizeWidth = 0.0f;
@@ -1761,7 +1774,6 @@ void RichText::formarRenderers()
     }
     else
     {
-        float newContentSizeHeight = 0.0f;
         float *maxHeights = new (std::nothrow) float[_elementRenders.size()];
         
         for (size_t i=0; i<_elementRenders.size(); i++)
@@ -1811,7 +1823,10 @@ void RichText::formarRenderers()
         this->setContentSize(s);
     }
     else
-    {
+		else if(_ignoreHeight)
+		{
+			this->setContentSize(Size(_customSize.width, newContentSizeHeight));
+		}else{
         this->setContentSize(_customSize);
     }
     updateContentSizeWithTextureSize(_contentSize);
@@ -1849,3 +1864,15 @@ std::string RichText::getDescription() const
 {
     return "RichText";
 }
+
+	void RichText::ignoreHeightAdaptWithSize(bool ignore)
+	{
+		_ignoreHeight = ignore;
+		_formatTextDirty = true;
+	}
+
+	bool RichText::isIgnoreHeightAdaptWithSize()
+	{
+		return _ignoreHeight;
+	}
+
