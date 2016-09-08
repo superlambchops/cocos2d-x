@@ -187,11 +187,23 @@ public:
      */
     void setPressedActionEnabled(bool enabled);
 
+	/**
+	 * Sets icon on top of Normal Renderer
+	 *
+	 * @pram file name of icon to desplay on normal renderer.
+	 * TODO should file be required to have blank edge
+	 * TODO add setsize function to set icon size as multiple of button size
+	 * TOSO should size be passed as type size??? Add another set function for that
+	 */
+	void setIconNormal(const std::string& icon, float size);
+
     //override methods
     virtual void ignoreContentAdaptWithSize(bool ignore) override;
     virtual Size getVirtualRendererSize() const override;
     virtual Node* getVirtualRenderer() override;
     virtual std::string getDescription() const override;
+
+	Size getTotalContentSize();
 
     /**
      * Return the inner title renderer of Button.
@@ -346,6 +358,10 @@ protected:
     Scale9Sprite* _buttonClickedRenderer;
     Scale9Sprite* _buttonDisabledRenderer;
     Label* _titleRenderer;
+	//TODO why does it fail on Sprite Below?
+	Scale9Sprite* _buttonNormalIcon;
+	Scale9Sprite* _buttonClickedIcon;
+	Scale9Sprite* _buttonDisabledIcon;
 
     float _zoomScale;
     bool _prevIgnoreSize;
