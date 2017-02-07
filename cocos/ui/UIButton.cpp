@@ -48,6 +48,9 @@ Button::Button():
 _buttonNormalRenderer(nullptr),
 _buttonClickedRenderer(nullptr),
 _buttonDisabledRenderer(nullptr),
+_buttonNormalIcon(nullptr),
+_buttonClickedIcon(nullptr),
+_buttonDisabledIcon(nullptr),
 _titleRenderer(nullptr),
 _zoomScale(0.1f),
 _normalFileName(""),
@@ -204,6 +207,31 @@ void Button::setScale9Enabled(bool able)
 bool Button::isScale9Enabled()const
 {
     return _scale9Enabled;
+}
+
+void Button::setIconNormal(const std::string & icon, float size)
+{
+	if (nullptr != _buttonNormalIcon) {
+		removeProtectedChild(_buttonNormalIcon);
+	}
+	_buttonNormalIcon = Scale9Sprite::create(icon);
+	_buttonNormalIcon->setRenderingType(Scale9Sprite::RenderingType::SIMPLE);
+	_buttonNormalIcon->setContentSize(Size(size, size));
+	_buttonNormalIcon->setAnchorPoint(Vec2::ANCHOR_MIDDLE);
+	if (getTitleText() == "") {
+		_buttonNormalIcon->setPosition(_customSize.width * 0.5f, _customSize.height * 0.5f);
+	}
+	else {
+		_buttonNormalIcon->setPosition((_contentSize.width - _titleRenderer->getContentSize().width - getTitleFontSize()*0.25) * 0.5f, _contentSize.height * 0.5f);
+		_titleRenderer->setPosition((_contentSize.width + _buttonNormalIcon->getContentSize().width + getTitleFontSize()*0.25) * 0.5f, _contentSize.height * 0.5f);
+	}
+
+	addProtectedChild(_buttonNormalIcon, TITLE_RENDERER_Z, -1);
+	_normalTextureAdaptDirty = true;
+	updateContentSize();
+	//TODO should x and y scale be done separate?
+	//TODO separate function for postiontn like Title
+	CCLOG("Icon should be set");
 }
 
 void Button::ignoreContentAdaptWithSize(bool ignore)
@@ -453,6 +481,10 @@ void Button::onPressStateChangedToNormal()
             _buttonNormalRenderer->setScale(1.0);
             _buttonClickedRenderer->setScale(1.0);
 
+			if (nullptr != _buttonNormalIcon) {
+				_buttonNormalIcon->setScale(1.0);
+			}
+
             if(nullptr != _titleRenderer)
             {
                 _titleRenderer->stopAllActions();
@@ -481,7 +513,10 @@ void Button::onPressStateChangedToNormal()
             _titleRenderer->setScaleY(1.0f);
         }
 
-    }
+		if (nullptr != _buttonNormalIcon) {
+			_buttonNormalIcon->setScale(1.0);
+	    }
+	}
 }
 
 void Button::onPressStateChangedToPressed()
@@ -531,6 +566,12 @@ void Button::onPressStateChangedToPressed()
             _titleRenderer->setScaleX(1.0f + _zoomScale);
             _titleRenderer->setScaleY(1.0f + _zoomScale);
         }
+
+		if (nullptr != _buttonNormalIcon) {
+			_buttonNormalIcon->stopAllActions();
+			_buttonNormalIcon->setScale(1.0f + _zoomScale);
+			//_buttonNormalIcon->setScaleY(1.0f + _zoomScale);
+		}
     }
 }
 
@@ -553,6 +594,10 @@ void Button::onPressStateChangedToDisabled()
     _buttonClickedRenderer->setVisible(false);
     _buttonNormalRenderer->setScale(1.0);
     _buttonClickedRenderer->setScale(1.0);
+
+	if (nullptr != _buttonNormalIcon) {
+		_buttonNormalIcon->setScale(1.0);
+	}
 }
 
 void Button::updateTitleLocation()
@@ -586,10 +631,17 @@ void Button::updateContentSize()
 void Button::onSizeChanged()
 {
     Widget::onSizeChanged();
-    if(nullptr != _titleRenderer)
+	if (getTitleText() != "" && nullptr == _buttonNormalIcon)
     {
         updateTitleLocation();
     }
+	else if (nullptr != _buttonNormalIcon && getTitleText() == "") {
+		_buttonNormalIcon->setPosition(Vec2(_contentSize.width / 2.0f, _contentSize.height / 2.0f));
+	}
+	else if (nullptr != _buttonNormalIcon && getTitleText() != "") {
+		_buttonNormalIcon->setPosition((_contentSize.width - _titleRenderer->getContentSize().width - getTitleFontSize()*0.25f) * 0.5f, _contentSize.height * 0.5f);
+		_titleRenderer->setPosition((_contentSize.width + _buttonNormalIcon->getContentSize().width + getTitleFontSize()*0.25f) * 0.5f, _contentSize.height * 0.5f);
+	}
     _normalTextureAdaptDirty = true;
     _pressedTextureAdaptDirty = true;
     _disabledTextureAdaptDirty = true;
@@ -652,6 +704,25 @@ Node* Button::getVirtualRenderer()
     {
         return _buttonDisabledRenderer;
     }
+}
+
+Size Button::getTotalContentSize() {
+	int x = 0;
+	int y = 0;
+	if (getTitleText() != "") {
+		x = getTitleRenderer()->getContentSize().width;
+		y = getTitleRenderer()->getContentSize().height;
+		if (nullptr != _buttonNormalIcon) {
+			x += 0.25*getTitleFontSize();
+		}
+	}
+	if (nullptr != _buttonNormalIcon) {
+		x += _buttonNormalIcon->getContentSize().width;
+		if (_buttonNormalIcon->getContentSize().height > y) {
+			y = _buttonNormalIcon->getContentSize().height;
+		}
+	}
+	return Size(x, y);
 }
 
 void Button::normalTextureScaleChangedWithSize()

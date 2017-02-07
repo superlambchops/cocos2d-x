@@ -46,7 +46,7 @@ class ListenerComponent : public Component
 {
 public:
     static const std::string COMPONENT_NAME;    /*!< component name */
-
+	
     static ListenerComponent* create(Node* parent, const std::string& url, const RichText::OpenUrlHandler handleOpenUrl = nullptr)
     {
         auto component = new (std::nothrow) ListenerComponent(parent, url, handleOpenUrl);
@@ -1822,7 +1822,6 @@ void RichText::formarRenderers()
         Size s = getVirtualRendererSize();
         this->setContentSize(s);
     }
-    else
 		else if(_ignoreHeight)
 		{
 			this->setContentSize(Size(_customSize.width, newContentSizeHeight));
